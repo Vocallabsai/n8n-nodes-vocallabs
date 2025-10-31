@@ -31,7 +31,7 @@ A comprehensive n8n community node for integrating **VocalLabs AI Voice API** in
 1. Open your n8n instance
 2. Go to **Settings** > **Community Nodes**
 3. Click **Install a community node**
-4. Search for `@vocallabs/n8n-nodes-vocallabs`
+4. Search for `n8n-nodes-vocallabs`
 5. Click **Install**
 
 ### Via NPM

@@ -1,5 +1,5 @@
 {
-  "name": "@vocallabs/n8n-nodes-vocallabs",
+  "name": "n8n-nodes-vocallabs",
   "version": "1.0.0",
   "description": "n8n community node for VocalLabs AI Voice API",
   "keywords": [
