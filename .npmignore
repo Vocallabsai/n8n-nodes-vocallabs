@@ -1,0 +1,21 @@
+# Create .npmignore to exclude unnecessary files
+cat > .npmignore << 'EOF'
+src/
+*.ts
+!dist/**/*.d.ts
+tsconfig.json
+.eslintrc
+.prettierrc
+jest.config.js
+Dockerfile*
+docker-compose.yml
+Makefile
+.env*
+.git
+.github
+node_modules/
+coverage/
+*.log
+*.test.ts
+*.spec.ts
+EOF
