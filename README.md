@@ -1,30 +1,28 @@
 # n8n-nodes-vocallabs
 
-[![npm version](https://img.shields.io/npm/v/@vocallabs/n8n-nodes-vocallabs.svg)](https://www.npmjs.com/package/@vocallabs/n8n-nodes-vocallabs)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-vocallabs.svg)](https://www.npmjs.com/package/n8n-nodes-vocallabs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![n8n compatibility](https://img.shields.io/badge/n8n-%3E%3D1.0.0-blue.svg)](https://n8n.io/)
 
-A comprehensive n8n community node for integrating **VocalLabs AI Voice API** into your n8n workflows.
+Official n8n community node for **VocalLabs AI Voice API**. Seamlessly integrate voice automation, AI agents, and call management into your n8n workflows.
 
-[VocalLabs](https://vocallabs.ai) is an enterprise-grade AI-powered voice automation platform that enables businesses to create intelligent voice agents, automate outbound/inbound calls, and gain actionable insights from conversation analytics.
-
-[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform with an extensive marketplace of integrations.
+**[VocalLabs](https://vocallabs.ai)** • **[n8n](https://n8n.io/)** • **[Documentation](https://docs.vocallabs.ai)**
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Installation](#installation)
+- [Quick Start](#quick-start)
 - [Features](#features)
-- [Credentials](#credentials)
 - [Operations](#operations)
-- [Development](#development)
+- [Credentials](#credentials)
 - [Support](#support)
 - [License](#license)
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Via n8n Community Nodes (Recommended)
 
@@ -36,292 +34,183 @@ A comprehensive n8n community node for integrating **VocalLabs AI Voice API** in
 
 ### Via NPM
 
-npm install @vocallabs/n8n-nodes-vocallabs
-
-text
-
-### Manual Installation
-
-git clone https://github.com/Vocallabsai/n8n-nodes-vocallabs.git
-cd n8n-nodes-vocallabs
-npm install
-npm run build
+npm install n8n-nodes-vocallabs
 
 text
 
 ---
 
-## ✨ Features
+## Quick Start
 
-✅ **100+ API Operations** across 11 resources  
-✅ **Automatic Token Management** with secure 23-hour refresh cycle  
-✅ **Production-Ready** - Used by enterprise clients  
-✅ **Comprehensive API Coverage** - Dashboard, Calls, Agents, Analytics, Contacts, and more  
-✅ **Real-time Voice Agent Control** - Create, update, and manage AI agents  
-✅ **Call Management** - Initiate calls, retrieve details, manage audio recordings  
-✅ **Advanced Analytics** - Access call data, conversations, and summaries  
-✅ **Contact Management** - Bulk contact operations and group management  
-✅ **Campaign Automation** - Create and manage outbound call campaigns  
-✅ **Marketplace Integration** - Access phone numbers and regions  
+1. **Add the VocalLabs node** to your workflow
+2. **Create credentials** with your Client ID and Client Secret
+3. **Select a resource** (Dashboard, Contacts, Calls, etc.)
+4. **Choose an operation** and configure parameters
+5. **Execute** and use the response data
 
 ---
 
-## 🔐 Credentials
+## Features
 
-This node requires VocalLabs authentication credentials:
+✅ **100+ API Operations** - Complete VocalLabs API coverage  
+✅ **11 Resources** - Dashboard, Calls, Agents, Analytics, Contacts, and more  
+✅ **Automatic Token Management** - Secure, auto-refreshing authentication  
+✅ **Production-Ready** - Enterprise-grade stability  
+✅ **Real-time Voice Control** - Create and manage AI agents on-the-fly  
+✅ **Call Analytics** - Access detailed call data and conversations  
+✅ **Bulk Operations** - Manage contacts and campaigns at scale  
 
-| Field | Description | Required |
-|-------|-------------|----------|
-| **Client ID** | Your VocalLabs Client ID | ✅ Yes |
-| **Client Secret** | Your VocalLabs Client Secret | ✅ Yes |
+---
 
-**How to obtain credentials:**
+## Operations
+
+The node supports operations across 11 core resources:
+
+| Resource | Operations | Features |
+|----------|-----------|----------|
+| **Dashboard** | Get Stats, Get Tokens | Workflow overview & API tokens |
+| **Wallet** | Get Balance, Transaction History | Account management |
+| **Call** | 11 operations | Initiate, retrieve, manage calls |
+| **Agent** | 26 operations | Create, update, manage voice agents |
+| **Analytics** | 9 operations | Call data, summaries, analytics |
+| **Contacts** | 14 operations | CRUD operations, bulk imports |
+| **Campaign** | 8 operations | Campaign creation & management |
+| **SIP** | Create SIP Call | Direct SIP integration |
+| **Library** | 11 operations | Actions, documents, templates |
+| **Identity** | Verification URLs | KYC/identity verification |
+| **Marketplace** | Numbers, Countries | Phone number marketplace |
+
+**[View complete operations list →](https://github.com/Vocallabsai/n8n-nodes-vocallabs/wiki/Operations)**
+
+---
+
+## Credentials
+
+### Required Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| Client ID | String | ✅ | Your VocalLabs API Client ID |
+| Client Secret | String | ✅ | Your VocalLabs API Client Secret |
+
+### How to Obtain Credentials
 
 1. Log in to [VocalLabs Dashboard](https://vocallabs.ai/dashboard)
 2. Navigate to **Settings** > **API Keys**
-3. Create or copy your **Client ID** and **Client Secret**
-4. Store them securely in n8n credentials
+3. Copy your **Client ID** and **Client Secret**
+4. Add to n8n credentials
 
-> **Note:** The node handles token refresh automatically. Tokens are cached for 23 hours and automatically renewed when expired.
-
----
-
-## 📚 Operations
-
-### Dashboard (2 operations)
-- Get Dashboard Stats
-- Get Tokens
-
-### Wallet (2 operations)
-- Get Balance
-- Get Transaction History
-
-### SIP (1 operation)
-- Create SIP Call
-
-### Call (11 operations)
-- Initiate Call
-- Get Call Details
-- Get Voices
-- Get Call API Tokens
-- Call API
-- Get Call Timeline
-- Get Daily Calls
-- Get WebSocket URL
-- Get Audit (Single/All)
-- Upload Audio
-
-### Agent (26 operations)
-- Get Agents / Get Agent By ID
-- Create / Update Agent
-- Get Agent Templates
-- Get Voices By Language
-- Toggle Favorite
-- Update Visibility
-- Get Agent Prompt History
-- Update Success Metrics
-- Update Notifications (WhatsApp/Email)
-- Manage Documents
-- Get AI Models
-- Get Agent Actions
-- Update Reschedule Settings
-- Manage Keywords (Add/Update/Delete)
-- Manage FAQs (Insert/Update/Delete)
-- Get Agent Samples
-
-### Analytics (9 operations)
-- Get Call Statuses
-- Get Call Conversation
-- Get Call Data
-- Get Call Status
-- Get Call Summary
-- Get Post Call Data
-- Update Post Call Data
-- Delete Post Call Data
-- Get VocalLabs Call Data
-
-### Contacts (14 operations)
-- Create Contact Group (v1/v2)
-- Create Contact In Group
-- Update Contact Metadata
-- Get Contact Groups
-- Update Contact Group
-- Delete Contact Group
-- Delete Contact
-- Get Contacts
-- Add Multiple Contacts (v1/v2)
-- Get Contact Data
-- Update Contact Data
-- Get Contact
-
-### Library (11 operations)
-- Get Actions
-- Create / Update / Delete Action
-- Get Documents
-- Delete Document
-- Get Action Templates
-- Get Action Template Details
-- Get Action Parameters
-- Get Action Fields
-- Get Action Configuration
-
-### Identity (2 operations)
-- Get Flows
-- Get Identity Verification URL
-
-### Campaign (8 operations)
-- Get Campaigns
-- Create / Update / Delete Campaign
-- Get Queueing Details
-- Get Campaign Status
-- Update Campaign Status
-- Add Contacts to Campaign
-
-### Marketplace (3 operations)
-- Fetch Available Numbers
-- Get Your Numbers
-- Fetch Countries
+**Note:** Token refresh is automatic and happens every 23 hours. No manual intervention needed.
 
 ---
 
-## 🔧 Development
+## Usage Examples
 
-### Prerequisites
+### Example 1: Get Dashboard Statistics
 
-- Node.js 18+
-- npm or yarn
-
-### Setup
-
-Clone the repository
-git clone https://github.com/Vocallabsai/n8n-nodes-vocallabs.git
-cd n8n-nodes-vocallabs
-
-Install dependencies
-npm install
-
-Build the node
-npm run build
-
-Format code
-npm run format
-
-Run linter
-npm run lint
-
-Fix linting issues
-npm run lintfix
+Resource: Dashboard
+Operation: Get Dashboard Stats
+Output: Dashboard metrics, tokens, usage stats
 
 text
 
-### Project Structure
+### Example 2: Create Outbound Call Campaign
 
-src/
-├── credentials/
-│ ├── index.ts
-│ └── VocallabsApi.credentials.ts
-├── nodes/
-│ └── Vocallabs/
-│ ├── Vocallabs.node.ts
-│ ├── index.ts
-│ ├── vocallabs.svg
-│ ├── actions/
-│ │ ├── http.ts
-│ │ ├── dashboard.actions.ts
-│ │ ├── wallet.actions.ts
-│ │ └── ... (11 resource action files)
-│ └── descriptions/
-│ ├── common.resource.ts
-│ ├── dashboard.description.ts
-│ └── ... (11 resource description files)
-└── index.ts
+Resource: Campaign
+Operation: Create Campaign
+Parameters:
+
+Campaign Name: "Q4 Outreach"
+
+Agent ID: [Your Agent ID]
+Output: Campaign ID, status
+
+text
+
+### Example 3: Bulk Import Contacts
+
+Resource: Contacts
+Operation: Add Multiple Contacts
+Parameters:
+
+Contact Group ID: [Group ID]
+
+Contacts: [Array of contact objects]
+Output: Import status, contact IDs
 
 text
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-### Authentication Errors
-
-**Issue:** "Authentication token not found in API response"
-
-**Solution:**
+### "Authentication failed"
 - Verify Client ID and Client Secret are correct
-- Check credentials have API access enabled
-- Contact VocalLabs support if issue persists
+- Ensure API access is enabled in VocalLabs Dashboard
+- Check network connectivity to VocalLabs API
 
-### API Rate Limiting
+### "Rate limit exceeded"
+- Implement delays between requests in your workflow
+- Use n8n batching for bulk operations
+- Contact VocalLabs support for higher limits
 
-**Issue:** "Rate limit exceeded"
-
-**Solution:**
-- Implement workflow delays between requests
-- Use n8n batching features for bulk operations
-- Contact VocalLabs for higher rate limits
-
-### Node Not Appearing in n8n
-
-**Issue:** VocalLabs node doesn't appear in node picker
-
-**Solution:**
+### Node not appearing in n8n
 - Restart n8n service
-- Verify node is properly installed: `npm list @vocallabs/n8n-nodes-vocallabs`
-- Check n8n logs for errors
+- Clear n8n cache: `rm -rf ~/.n8n`
+- Verify installation: `npm list n8n-nodes-vocallabs`
 
 ---
 
-## 📖 Documentation
+## API Documentation
 
-- [VocalLabs API Documentation](https://docs.vocallabs.ai)
-- [n8n Community Nodes Guide](https://docs.n8n.io/integrations/community-nodes/)
-- [n8n Workflow Documentation](https://docs.n8n.io/workflows/)
+- **VocalLabs API Docs:** https://docs.vocallabs.ai
+- **n8n Integration Guide:** https://docs.n8n.io/integrations/community-nodes/
+- **n8n Workflow Docs:** https://docs.n8n.io/workflows/
 
 ---
 
-## 🤝 Support
+## Support
 
-### For Issues & Questions
+### Need Help?
 
 - **GitHub Issues:** [Report bugs](https://github.com/Vocallabsai/n8n-nodes-vocallabs/issues)
-- **Email Support:** support@vocallabs.ai
-- **Discord:** [VocalLabs Community](https://discord.gg/vocallabs)
+- **Email:** support@vocallabs.ai
+- **Community Discord:** [Join us](https://discord.gg/vocallabs)
 
-### For Feature Requests
+### Feature Requests
 
-Please open an issue with the `feature-request` label on [GitHub](https://github.com/Vocallabsai/n8n-nodes-vocallabs/issues).
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+Open a [GitHub issue](https://github.com/Vocallabsai/n8n-nodes-vocallabs/issues) with the `feature-request` label.
 
 ---
 
-## 👥 Authors
+## License
 
-- **VocalLabs Team** - [vocallabs.ai](https://vocallabs.ai)
-- Maintainer: [GitHub](https://github.com/Vocallabsai)
+MIT License © 2025 VocalLabs
 
----
-
-## 🙏 Acknowledgments
-
-- Built for [n8n](https://n8n.io/)
-- Powered by [VocalLabs AI](https://vocallabs.ai)
-- Community contributions welcome
+See [LICENSE](LICENSE) file for details.
 
 ---
 
-## 📈 Changelog
+## Authors
 
-### v1.0.0 (2025-10-31)
-- ✨ Initial release
-- 🎯 100+ API operations
-- 🔐 Automatic token management
+**VocalLabs Team**
+- Website: [vocallabs.ai](https://vocallabs.ai)
+- GitHub: [@Vocallabsai](https://github.com/Vocallabsai)
+- Email: support@vocallabs.ai
+
+---
+
+## Changelog
+
+### v2.0.0 (2025-10-31)
+- ✨ Complete rewrite with 100+ operations
+- 🔐 Automatic token refresh (23-hour cache)
 - ✅ Full VocalLabs API coverage
+- 🚀 Production-ready release
+
+### v1.0.0 (2025-10-30)
+- Initial release
 
 ---
 
-**Happy automating! 🚀**
+**Ready to automate your voice workflows? [Get started now →](https://n8n.io/)**
