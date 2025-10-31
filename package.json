@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-vocallabs",
+  "name": "@vocallabs/n8n-nodes-vocallabs",
   "version": "1.0.0",
   "description": "n8n community node for VocalLabs AI Voice API",
   "keywords": [
@@ -11,20 +11,25 @@
   ],
   "license": "MIT",
   "author": {
-    "name": "Rohan Phogat",
-    "email": "rohan@vocallabs.ai"
+    "name": "VocalLabs",
+    "email": "support@vocallabs.ai"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rohan-phogat/n8n-nodes-vocallabs.git"
+    "url": "https://github.com/Vocallabsai/n8n-nodes-vocallabs.git"
   },
-  "main": "index.js",
+  "bugs": {
+    "url": "https://github.com/Vocallabsai/n8n-nodes-vocallabs/issues"
+  },
+  "homepage": "https://github.com/Vocallabsai/n8n-nodes-vocallabs#readme",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc && gulp build:icons",
     "dev": "npm run build && n8n start",
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials",
     "lintfix": "eslint nodes credentials --fix",
+    "prepublishOnly": "npm run build",
     "test": "echo \"No tests yet\""
   },
   "files": [
@@ -38,6 +43,10 @@
     "nodes": [
       "dist/nodes/Vocallabs/Vocallabs.node.js"
     ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
