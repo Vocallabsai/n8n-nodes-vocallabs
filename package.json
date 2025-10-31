@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-vocallabs",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "n8n community node for VocalLabs AI Voice API",
   "keywords": [
     "n8n-community-node-package",
