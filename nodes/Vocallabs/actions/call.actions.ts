@@ -12,6 +12,22 @@ export async function initiateCall(ctx: IExecuteFunctions, itemIndex: number): P
 	});
 }
 
+export async function createDirectCall(ctx: IExecuteFunctions, index: number): Promise<any> {
+    const clientTokenId = ctx.getNodeParameter('client_token_id', index) as string;
+    const number = ctx.getNodeParameter('number', index) as string;
+
+    const options = {
+        method: 'POST' as const,
+        url: '/b2b/vocallabs/createDirectCall/',
+        body: {
+            client_token_id: clientTokenId,
+            number: number,
+        },
+    };
+
+    return await request(ctx, options);
+}
+
 export async function getCallDetails(ctx: IExecuteFunctions, itemIndex: number): Promise<any> {
 	const callId = ctx.getNodeParameter('callId', itemIndex) as string;
 
