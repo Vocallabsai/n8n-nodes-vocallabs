@@ -6,10 +6,10 @@ import {
     NodeOperationError,
 } from 'n8n-workflow';
 
-
 // Import resource descriptions
 import { resourceSelector } from './descriptions/common.resource';
 import { dashboardOperations, dashboardFields } from './descriptions/dashboard.description';
+import { authOperations, authFields } from './descriptions/auth.description';
 import { walletOperations, walletFields } from './descriptions/wallet.description';
 import { sipOperations, sipFields } from './descriptions/sip.description';
 import { callOperations, callFields } from './descriptions/call.description';
@@ -21,9 +21,9 @@ import { identityOperations, identityFields } from './descriptions/identity.desc
 import { campaignOperations, campaignFields } from './descriptions/campaign.description';
 import { marketplaceOperations, marketplaceFields } from './descriptions/marketplace.description';
 
-
 // Import action handlers
 import * as dashboardActions from './actions/dashboard.actions';
+import * as authActions from './actions/auth.actions';
 import * as walletActions from './actions/wallet.actions';
 import * as sipActions from './actions/sip.actions';
 import * as callActions from './actions/call.actions';
@@ -35,7 +35,6 @@ import * as identityActions from './actions/identity.actions';
 import * as campaignActions from './actions/campaign.actions';
 import * as marketplaceActions from './actions/marketplace.actions';
 
-
 export class Vocallabs implements INodeType {
     description: INodeTypeDescription = {
         displayName: 'VocalLabs',
@@ -44,7 +43,7 @@ export class Vocallabs implements INodeType {
         group: ['transform'],
         version: 1,
         subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
-        description: 'Interact with VocalLabs API',
+        description: 'Interact with VocalLabs AI Voice Calling API',
         defaults: {
             name: 'VocalLabs',
         },
@@ -59,6 +58,7 @@ export class Vocallabs implements INodeType {
         properties: [
             resourceSelector,
             ...dashboardOperations,
+            ...authOperations, 
             ...walletOperations,
             ...sipOperations,
             ...callOperations,
@@ -70,6 +70,7 @@ export class Vocallabs implements INodeType {
             ...campaignOperations,
             ...marketplaceOperations,
             ...dashboardFields,
+            ...authFields, 
             ...walletFields,
             ...sipFields,
             ...callFields,
@@ -83,15 +84,12 @@ export class Vocallabs implements INodeType {
         ],
     };
 
-
     async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
         const items = this.getInputData();
         const returnData: INodeExecutionData[] = [];
         const resource = this.getNodeParameter('resource', 0) as string;
         const operation = this.getNodeParameter('operation', 0) as string;
 
-
-        // Operation map with all handlers directly referenced
         const operationHandlers: {
             [key: string]: {
                 [key: string]: (ctx: IExecuteFunctions, itemIndex: number) => Promise<any>;
@@ -101,6 +99,9 @@ export class Vocallabs implements INodeType {
                 getDashboardStats: dashboardActions.getDashboardStats,
                 getTokens: dashboardActions.getTokens,
             },
+            auth: {  
+                getAuthInfo: authActions.getAuthInfo,
+      },
             wallet: {
                 getBalance: walletActions.getBalance,
                 getTransactionHistory: walletActions.getTransactionHistory,
@@ -211,44 +212,45 @@ export class Vocallabs implements INodeType {
             },
         };
 
-
-        // Validate resource and operation exist
         if (!operationHandlers[resource]) {
-            throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`);
+            throw new NodeOperationError(
+                this.getNode(),
+                `Unknown resource: "${resource}". Available resources: ${Object.keys(operationHandlers).join(', ')}`
+            );
         }
-
 
         if (!operationHandlers[resource][operation]) {
             throw new NodeOperationError(
                 this.getNode(),
-                `Unknown operation "${operation}" for resource "${resource}"`
+                `Unknown operation "${operation}" for resource "${resource}". Available operations: ${Object.keys(operationHandlers[resource]).join(', ')}`
             );
         }
 
-
         const handler = operationHandlers[resource][operation];
 
-
-        // Execute for each item
         for (let i = 0; i < items.length; i++) {
             try {
                 const responseData = await handler(this, i);
+                
                 returnData.push({
                     json: responseData,
+                    pairedItem: { item: i },
                 });
-            } catch (error) {
+            } catch (error: any) {
                 if (this.continueOnFail()) {
                     returnData.push({
                         json: {
                             error: error.message,
+                            errorDetails: error.description || '',
+                            statusCode: error.httpCode || 'Unknown',
                         },
+                        pairedItem: { item: i },
                     });
                 } else {
                     throw error;
                 }
             }
         }
-
 
         return [returnData];
     }

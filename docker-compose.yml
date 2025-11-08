@@ -2,14 +2,19 @@ version: '3.8'
 
 services:
   n8n:
-    image: n8nio/n8n
-    container_name: n8n
+    image: n8nio/n8n:latest
+    container_name: n8n_test
     restart: always
     ports:
       - "5678:5678"
     environment:
       - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_LOG_LEVEL=debug
+      - N8N_CUSTOM_EXTENSIONS=/data/custom-nodes
     volumes:
       - n8n_data:/home/node/.n8n
+      # Mount your Windows path (WSL2 compatible format)
+      - C:\Users\Alex\OneDrive\Desktop\n8n-nodes-vocallabs:/data/custom-nodes/n8n-nodes-vocallabs:ro
+
 volumes:
   n8n_data:
