@@ -187,36 +187,103 @@ export async function addMultipleContacts(ctx: IExecuteFunctions, itemIndex: num
     try {
         const prospect_group_id = ctx.getNodeParameter('prospect_group_id', itemIndex) as string;
         const client_id = ctx.getNodeParameter('client_id', itemIndex) as string;
-        const contactsData = ctx.getNodeParameter('prospects', itemIndex) as any;
+        const contactsJson = ctx.getNodeParameter('contacts_json', itemIndex) as string;
+
         validateGroupId(ctx, prospect_group_id, 'Add Multiple Contacts');
-        if (!client_id || client_id.trim().length === 0) throw new NodeApiError(ctx.getNode(), { message: 'User ID required. Get from Auth → Get Auth Info.', httpCode: '400' });
-        if (!contactsData || !contactsData.contactValues || contactsData.contactValues.length === 0) throw new NodeApiError(ctx.getNode(), { message: 'Please add at least one contact.', httpCode: '400' });
-        const prospects = (contactsData.contactValues || []).map((contact: any, index: number) => {
-            if (!contact.name || contact.name.trim().length === 0) throw new NodeApiError(ctx.getNode(), { message: `Contact ${index + 1}: Name required.`, httpCode: '400' });
-            if (!contact.phone || contact.phone.trim().length === 0) throw new NodeApiError(ctx.getNode(), { message: `Contact ${index + 1}: Phone required.`, httpCode: '400' });
-            if (!/^\d+$/.test(contact.phone.replace(/[\s\-()]/g, ''))) throw new NodeApiError(ctx.getNode(), { message: `Contact ${index + 1}: Phone number must be numeric (no + for V1).`, httpCode: '400' });
-            let data: any = {};
-            if (contact.additionalData) {
-                try {
-                    data = typeof contact.additionalData === 'string'
-                        ? JSON.parse(contact.additionalData)
-                        : contact.additionalData;
-                } catch {
-                    throw new NodeApiError(ctx.getNode(), { message: `Contact ${index + 1}: Invalid JSON in Additional Data. Example: {"email": "john@example.com"}`, httpCode: '400' });
-                }
+
+        if (!client_id || client_id.trim().length === 0) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: 'User ID required. Get it from Auth → Get Auth Info',
+                httpCode: '400',
+            });
+        }
+
+        // Parse JSON
+        let contactsArray: any[];
+        try {
+            contactsArray = typeof contactsJson === 'string' ? JSON.parse(contactsJson) : contactsJson;
+        } catch (parseError) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: 'Invalid JSON format. Expected array: [{"name": "John", "phone": "919876543210", "data": {}}]',
+                httpCode: '400',
+            });
+        }
+
+        if (!Array.isArray(contactsArray) || contactsArray.length === 0) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: 'Contacts must be a non-empty array. Example: [{"name": "John Doe", "phone": "911234567890"}]',
+                httpCode: '400',
+            });
+        }
+
+        // Validate and build prospects
+        const prospects = contactsArray.map((contact: any, index: number) => {
+            if (!contact.name || contact.name.trim().length === 0) {
+                throw new NodeApiError(ctx.getNode(), {
+                    message: `Contact ${index + 1}: name field is required`,
+                    httpCode: '400',
+                });
             }
-            return { name: contact.name, phone: contact.phone, data, prospect_group_id, client_id };
+
+            if (!contact.phone || contact.phone.trim().length === 0) {
+                throw new NodeApiError(ctx.getNode(), {
+                    message: `Contact ${index + 1} ("${contact.name}"): phone field is required`,
+                    httpCode: '400',
+                });
+            }
+
+            // V1 API: Phone WITHOUT + prefix (numeric only)
+            const cleanPhone = contact.phone.replace(/[\s\-\(\)]/g, '');
+            if (!/^\d+$/.test(cleanPhone)) {
+                throw new NodeApiError(ctx.getNode(), {
+                    message: `Contact ${index + 1} ("${contact.name}"): phone must be numeric. V1 API does NOT use + prefix. Valid: 919876543210`,
+                    httpCode: '400',
+                });
+            }
+
+            return {
+                name: contact.name,
+                phone: contact.phone,
+                data: contact.data || {},
+                prospect_group_id,
+                client_id,
+            };
         });
-        return await request(ctx, {
+
+        const response = await request(ctx, {
             method: 'POST',
             url: `${baseUrl}/b2b/vocallabs/addMultipleContactsToGroup`,
             body: { prospects },
         });
+
+        return {
+            success: true,
+            contacts_added: prospects.length,
+            contacts: prospects.map(p => ({
+                name: p.name,
+                phone: p.phone,
+                group_id: prospect_group_id,
+            })),
+            api_response: response,
+        };
     } catch (error: any) {
+        if (error.constructor.name === 'NodeApiError') throw error;
+
         const statusCode = error.statusCode || error.response?.statusCode || 0;
-        if (statusCode === 404)
-            throw new NodeApiError(ctx.getNode(), { message: `Contact group not found. Group ID: ${ctx.getNodeParameter('prospect_group_id', itemIndex)}`, httpCode: '404' });
-        throw new NodeApiError(ctx.getNode(), { message: `Failed to add contacts: ${error.message}`, httpCode: String(statusCode || 500) });
+        const errorBody = error.response?.body || error.body || {};
+        const apiMessage = errorBody.message || errorBody.error || error.message || 'Unknown error';
+
+        if (statusCode === 404) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: `Contact Group not found. Prospect Group ID "${ctx.getNodeParameter('prospect_group_id', itemIndex)}" does not exist`,
+                httpCode: '404',
+            });
+        }
+
+        throw new NodeApiError(ctx.getNode(), {
+            message: `Failed to add contacts: ${apiMessage}. Status: ${statusCode}`,
+            httpCode: String(statusCode || 500),
+        });
     }
 }
 
@@ -295,42 +362,115 @@ export async function addMultipleContactsV2(ctx: IExecuteFunctions, itemIndex: n
     try {
         const prospect_group_id = ctx.getNodeParameter('prospect_group_id', itemIndex) as string;
         const client_id = ctx.getNodeParameter('client_id', itemIndex) as string;
-        const contactsData = ctx.getNodeParameter('prospects', itemIndex) as any;
+        const contactsJson = ctx.getNodeParameter('contacts_json', itemIndex) as string;
+
         validateGroupId(ctx, prospect_group_id, 'Add Multiple Contacts V2');
-        if (!client_id || client_id.trim().length === 0) throw new NodeApiError(ctx.getNode(), { message: 'User ID required. Get from Auth → Get Auth Info.', httpCode: '400' });
-        if (!contactsData || !contactsData.contactValues || contactsData.contactValues.length === 0) throw new NodeApiError(ctx.getNode(), { message: 'Please add at least one contact.', httpCode: '400' });
-        const prospects = (contactsData.contactValues || []).map((contact: any, index: number) => {
-            if (!contact.name || contact.name.trim().length === 0) throw new NodeApiError(ctx.getNode(), { message: `Contact ${index + 1}: Name required.`, httpCode: '400' });
-            if (!contact.phone || contact.phone.trim().length === 0) throw new NodeApiError(ctx.getNode(), { message: `Contact ${index + 1}: Phone required.`, httpCode: '400' });
-            if (!contact.phone.startsWith('+')) throw new NodeApiError(ctx.getNode(), { message: `Contact ${index + 1}: Phone must start with + (required for V2).`, httpCode: '400' });
-            let data: any = {};
-            if (contact.additionalData) {
-                try {
-                    data = typeof contact.additionalData === 'string'
-                        ? JSON.parse(contact.additionalData)
-                        : contact.additionalData;
-                } catch {
-                    throw new NodeApiError(ctx.getNode(), { message: `Contact ${index + 1}: Invalid JSON in Additional Data. Example: {"email": "john@example.com"}`, httpCode: '400' });
-                }
+
+        if (!client_id || client_id.trim().length === 0) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: 'User ID required. Get it from Auth → Get Auth Info',
+                httpCode: '400',
+            });
+        }
+
+        // Parse JSON
+        let contactsArray: any[];
+        try {
+            contactsArray = typeof contactsJson === 'string' ? JSON.parse(contactsJson) : contactsJson;
+        } catch (parseError) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: 'Invalid JSON format. Expected array: [{"name": "John", "phone": "+919876543210", "data": {}}]',
+                httpCode: '400',
+            });
+        }
+
+        if (!Array.isArray(contactsArray) || contactsArray.length === 0) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: 'Contacts must be a non-empty array. Example: [{"name": "John Doe", "phone": "+911234567890"}]',
+                httpCode: '400',
+            });
+        }
+
+        // Validate and build prospects
+        const prospects = contactsArray.map((contact: any, index: number) => {
+            if (!contact.name || contact.name.trim().length === 0) {
+                throw new NodeApiError(ctx.getNode(), {
+                    message: `Contact ${index + 1}: name field is required`,
+                    httpCode: '400',
+                });
             }
-            return { name: contact.name, phone: contact.phone, data, prospect_group_id, client_id };
+
+            if (!contact.phone || contact.phone.trim().length === 0) {
+                throw new NodeApiError(ctx.getNode(), {
+                    message: `Contact ${index + 1} ("${contact.name}"): phone field is required`,
+                    httpCode: '400',
+                });
+            }
+
+            // V2 API: Phone MUST have + prefix
+            if (!contact.phone.startsWith('+')) {
+                throw new NodeApiError(ctx.getNode(), {
+                    message: `Contact ${index + 1} ("${contact.name}"): phone "${contact.phone}" must start with + and country code (V2 requirement). Valid: +919876543210`,
+                    httpCode: '400',
+                });
+            }
+
+            return {
+                name: contact.name,
+                phone: contact.phone,
+                data: contact.data || {},
+                prospect_group_id,
+                client_id,
+            };
         });
-        return await request(ctx, {
+
+        const response = await request(ctx, {
             method: 'POST',
             url: `${baseUrl}/b2b/vocallabs/addMultipleContactsToGroupV2`,
             body: { prospects },
         });
+
+        return {
+            success: true,
+            contacts_added: prospects.length,
+            contacts: prospects.map(p => ({
+                name: p.name,
+                phone: p.phone,
+                group_id: prospect_group_id,
+            })),
+            api_response: response,
+        };
     } catch (error: any) {
+        if (error.constructor.name === 'NodeApiError') throw error;
+
         const statusCode = error.statusCode || error.response?.statusCode || 0;
         const errorBody = error.response?.body || error.body || {};
-        const apiMessage = errorBody.message || error.message || 'Unknown error';
-        if (statusCode === 404)
-            throw new NodeApiError(ctx.getNode(), { message: `Contact group not found. Group ID: ${ctx.getNodeParameter('prospect_group_id', itemIndex)}`, httpCode: '404' });
-        if (statusCode === 400)
-            throw new NodeApiError(ctx.getNode(), { message: `Add contacts failed: ${apiMessage}. Check phone format, group existence, and JSON fields.`, httpCode: '400' });
-        if (statusCode >= 500 && (apiMessage.toLowerCase().includes('exists') || apiMessage.toLowerCase().includes('duplicate')))
-            throw new NodeApiError(ctx.getNode(), { message: `Contact already exists in this group. Use a different phone number or remove the old contact.`, httpCode: '500' });
-        throw new NodeApiError(ctx.getNode(), { message: `Failed to add contacts (V2): ${apiMessage}`, httpCode: String(statusCode || 500) });
+        const apiMessage = errorBody.message || errorBody.error || error.message || 'Unknown error';
+
+        if (statusCode === 404) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: `Contact Group not found. Prospect Group ID "${ctx.getNodeParameter('prospect_group_id', itemIndex)}" does not exist`,
+                httpCode: '404',
+            });
+        }
+
+        if (statusCode === 400) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: `Invalid request: ${apiMessage}. Common issues: phone must start with + (V2 requirement), invalid JSON, or IDs don't exist`,
+                httpCode: '400',
+            });
+        }
+
+        if (statusCode >= 500 && (apiMessage.toLowerCase().includes('exists') || apiMessage.toLowerCase().includes('duplicate'))) {
+            throw new NodeApiError(ctx.getNode(), {
+                message: `Contact already exists: ${apiMessage}. Use different phone number or remove existing contact first`,
+                httpCode: String(statusCode),
+            });
+        }
+
+        throw new NodeApiError(ctx.getNode(), {
+            message: `Failed to add contacts (V2): ${apiMessage}. Status: ${statusCode}`,
+            httpCode: String(statusCode || 500),
+        });
     }
 }
-

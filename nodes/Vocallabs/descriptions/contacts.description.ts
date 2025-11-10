@@ -288,57 +288,37 @@ export const contactsFields: INodeProperties[] = [
             },
         },
     },
+    // NEW: JSON field for bulk contact input
     {
-        displayName: 'Contacts',
-        name: 'prospects',
-        type: 'fixedCollection',
-        typeOptions: {
-            multipleValues: true,
-        },
-        default: {},
-        placeholder: 'Add Contact',
-        description: 'Add contacts to the group',
+        displayName: 'Contacts (JSON)',
+        name: 'contacts_json',
+        type: 'json',
+        required: true,
+        default: '[\n  {\n    "name": "John Doe",\n    "phone": "911234567890",\n    "data": {"email": "john@example.com"}\n  },\n  {\n    "name": "Jane Smith",\n    "phone": "919876543210",\n    "data": {"company": "Acme Corp"}\n  }\n]',
+        description: 'Array of contact objects to add to the group',
+        hint: 'V1 API: phone WITHOUT +. Each contact needs: name (string), phone (numeric), data (optional object)',
+        placeholder: '[\n  {"name": "John Doe", "phone": "911234567890", "data": {}}\n]',
         displayOptions: {
             show: {
                 resource: ['contacts'],
-                operation: ['addMultipleContacts', 'addMultipleContactsV2'],
+                operation: ['addMultipleContacts'],
             },
         },
-        options: [
-            {
-                name: 'contactValues',
-                displayName: 'Contact',
-                values: [
-                    {
-                        displayName: 'Name',
-                        name: 'name',
-                        type: 'string',
-                        default: '',
-                        required: true,
-                        placeholder: 'Joey Dash',
-                        description: 'Full name of the contact',
-                    },
-                    {
-                        displayName: 'Phone Number',
-                        name: 'phone',
-                        type: 'string',
-                        default: '',
-                        required: true,
-                        placeholder: '+1234567890',
-                        description: 'Phone number with country code ',
-                        hint: 'e.g., +1234567890',
-                    },
-                    {
-                        displayName: 'Additional Data (JSON)',
-                        name: 'additionalData',
-                        type: 'json',
-                        default: '{}',
-                        description: 'Additional custom fields as JSON object',
-                        hint: 'Optional. Add custom data like email, company, etc.',
-                        placeholder: '{"email": "joey@example.com", "company": "Vocallabs"}',
-                    },
-                ],
+    },
+    {
+        displayName: 'Contacts (JSON)',
+        name: 'contacts_json',
+        type: 'json',
+        required: true,
+        default: '[\n  {\n    "name": "John Doe",\n    "phone": "+911234567890",\n    "data": {"email": "john@example.com"}\n  },\n  {\n    "name": "Jane Smith",\n    "phone": "+919876543210",\n    "data": {"company": "Acme Corp"}\n  }\n]',
+        description: 'Array of contact objects to add to the group',
+        hint: 'V2 API: phone MUST start with +. Each contact needs: name (string), phone (with + prefix), data (optional object)',
+        placeholder: '[\n  {"name": "John Doe", "phone": "+911234567890", "data": {}}\n]',
+        displayOptions: {
+            show: {
+                resource: ['contacts'],
+                operation: ['addMultipleContactsV2'],
             },
-        ],
+        },
     },
 ];
