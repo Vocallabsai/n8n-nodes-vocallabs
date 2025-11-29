@@ -26,8 +26,7 @@ export async function getAuthInfo(ctx: IExecuteFunctions, itemIndex: number): Pr
 
         if (!token) {
             throw new NodeApiError(ctx.getNode(), {
-                message: 'Authentication failed: Could not retrieve authentication token. Check your VocalLabs credentials (Client ID & Secret), or refresh them in Dashboard, then try again.',
-                httpCode: '401',
+                message: 'Authentication token not found in response',
             });
         }
 
@@ -40,38 +39,38 @@ export async function getAuthInfo(ctx: IExecuteFunctions, itemIndex: number): Pr
             full_response: response,
         };
     } catch (error: any) {
-        const statusCode = error.statusCode || error.response?.statusCode || 0;
-        const errorBody = error.response?.body || error.body || {};
-        const apiMessage = errorBody.message || errorBody.error || error.message || 'Unknown error';
+        // Extract the actual API error from Axios error
+        let errorMessage = 'Failed to get authentication info';
+        let statusCode = 500;
 
-        // IP Whitelisting
-        if (apiMessage.toLowerCase().includes('ip') && apiMessage.toLowerCase().includes('whitelisted')) {
-            throw new NodeApiError(ctx.getNode(), {
-                message: `IP Not Whitelisted: ${apiMessage}. 
-To fix:
-1. Find your server's IP: curl ifconfig.me
-2. VocalLabs Dashboard → Security
-3. Add your IP to whitelist`,
-                httpCode: String(statusCode),
-            });
+        // Get status code
+        if (error.response?.status) {
+            statusCode = error.response.status;
+        } else if (error.statusCode) {
+            statusCode = error.statusCode;
         }
 
-        // Invalid credentials
-        if (statusCode === 401 || statusCode === 403) {
-            throw new NodeApiError(ctx.getNode(), {
-                message: `Invalid credentials: ${apiMessage}. 
-Fix:
-1. Edit your VocalLabs credentials in n8n
-2. Get new Client ID and Secret from VocalLabs Dashboard → API
-3. Update credentials and try again`,
-                httpCode: String(statusCode),
-            });
+        // Get the response data (this is where the API error message is)
+        if (error.response?.data) {
+            const data = error.response.data;
+            
+            if (typeof data === 'string') {
+                try {
+                    const parsed = JSON.parse(data);
+                    errorMessage = parsed.message || parsed.error || data;
+                } catch (e) {
+                    errorMessage = data;
+                }
+            } else if (typeof data === 'object') {
+                errorMessage = data.message || data.error || data.detail || JSON.stringify(data);
+            }
+        } else if (error.message) {
+            errorMessage = error.message;
         }
 
-        // Generic/fallback
         throw new NodeApiError(ctx.getNode(), {
-            message: `Failed to get Auth Info: ${apiMessage}. See https://docs.vocallabs.ai/vocallabs for help.`,
-            httpCode: String(statusCode || 500),
+            message: errorMessage,
+            httpCode: String(statusCode),
         });
     }
 }
