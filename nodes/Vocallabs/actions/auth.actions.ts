@@ -29,6 +29,8 @@ export async function getAuthInfo(ctx: IExecuteFunctions, itemIndex: number): Pr
                 message: 'Authentication token not found in response',
             });
         }
+        const staticData = ctx.getWorkflowStaticData('node');
+        staticData.authToken = token;
 
         return {
             success: true,
@@ -53,7 +55,7 @@ export async function getAuthInfo(ctx: IExecuteFunctions, itemIndex: number): Pr
         // Get the response data (this is where the API error message is)
         if (error.response?.data) {
             const data = error.response.data;
-            
+
             if (typeof data === 'string') {
                 try {
                     const parsed = JSON.parse(data);

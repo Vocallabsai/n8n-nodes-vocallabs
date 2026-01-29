@@ -8,15 +8,6 @@ export async function getAuthToken(ctx: IExecuteFunctions): Promise<string> {
         clientSecret: string;
     };
 
-    const staticData = ctx.getWorkflowStaticData('node');
-    const cachedToken = staticData.authToken as string | undefined;
-    const tokenExpiry = staticData.tokenExpiry as number | undefined;
-
-    // Return cached token if still valid
-    if (cachedToken && tokenExpiry && Date.now() < tokenExpiry) {
-        return cachedToken;
-    }
-
     try {
         const options: IHttpRequestOptions = {
             method: 'POST',
@@ -40,14 +31,13 @@ export async function getAuthToken(ctx: IExecuteFunctions): Promise<string> {
             });
         }
 
-        // Cache token for 23 hours
+        const staticData = ctx.getWorkflowStaticData('node');
         staticData.authToken = token;
-        staticData.tokenExpiry = Date.now() + (23 * 60 * 60 * 1000);
 
         return token;
     } catch (error: any) {
         const { message, statusCode } = extractApiError(error);
-        
+
         throw new NodeApiError(ctx.getNode(), {
             message: message,
             httpCode: String(statusCode),
@@ -59,7 +49,8 @@ export async function request(
     ctx: IExecuteFunctions,
     options: IHttpRequestOptions,
 ): Promise<any> {
-    const token = await getAuthToken(ctx);
+    const staticData = ctx.getWorkflowStaticData('node');
+    const token = staticData.authToken as string | undefined;
 
     const requestOptions: IHttpRequestOptions = {
         ...options,
@@ -79,7 +70,8 @@ export async function request(
         if (statusCode === 401) {
             const staticData = ctx.getWorkflowStaticData('node');
             delete staticData.authToken;
-            delete staticData.tokenExpiry;
+            await getAuthToken(ctx);
+            return await ctx.helpers.httpRequest(requestOptions);
         }
 
         throw new NodeApiError(ctx.getNode(), {
@@ -104,7 +96,7 @@ function extractApiError(error: any): { message: string; statusCode: number } {
     // Extract error message from Axios response data (where API errors are)
     if (error.response?.data) {
         const data = error.response.data;
-        
+
         // If data is a string, try to parse it as JSON
         if (typeof data === 'string') {
             try {
@@ -114,12 +106,12 @@ function extractApiError(error: any): { message: string; statusCode: number } {
                 // If not JSON, use the string directly
                 errorMessage = data;
             }
-        } 
+        }
         // If data is an object, extract the message
         else if (typeof data === 'object') {
             errorMessage = data.message || data.error || data.detail || JSON.stringify(data);
         }
-    } 
+    }
     // Fallback to error.message if no response data
     else if (error.message) {
         errorMessage = error.message;
