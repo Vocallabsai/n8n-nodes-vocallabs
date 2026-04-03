@@ -1,8 +1,12 @@
 import { IExecuteFunctions, NodeApiError } from 'n8n-workflow';
-import { baseUrl } from './http';
+import { baseUrl, getAuthToken } from './http';
 
 export async function getAuthInfo(ctx: IExecuteFunctions, itemIndex: number): Promise<any> {
     try {
+        // Use the shared getAuthToken (goes through the mutex)
+        const token = await getAuthToken(ctx);
+
+        // Make a separate call to get user info from the auth endpoint
         const credentials = await ctx.getCredentials('vocallabsApi') as {
             clientId: string;
             clientSecret: string;
@@ -21,41 +25,27 @@ export async function getAuthInfo(ctx: IExecuteFunctions, itemIndex: number): Pr
             json: true,
         }) as any;
 
-        const token = response.auth_token || response.token || response.access_token || response.authToken;
         const userId = response.user_id || response.userId || response.client_id || response.id;
-
-        if (!token) {
-            throw new NodeApiError(ctx.getNode(), {
-                message: 'Authentication token not found in response',
-            });
-        }
-        const staticData = ctx.getWorkflowStaticData('node');
-        staticData.authToken = token;
 
         return {
             success: true,
             auth_token: token,
             user_id: userId || 'Not provided',
-            token_expires_in: '24 hours',
-            message: 'Use the user_id in other operations that require User ID',
+            message: 'Token is cached and reused across operations. Use the user_id in other operations that require User ID.',
             full_response: response,
         };
     } catch (error: any) {
-        // Extract the actual API error from Axios error
         let errorMessage = 'Failed to get authentication info';
         let statusCode = 500;
 
-        // Get status code
         if (error.response?.status) {
             statusCode = error.response.status;
         } else if (error.statusCode) {
             statusCode = error.statusCode;
         }
 
-        // Get the response data (this is where the API error message is)
         if (error.response?.data) {
             const data = error.response.data;
-
             if (typeof data === 'string') {
                 try {
                     const parsed = JSON.parse(data);
