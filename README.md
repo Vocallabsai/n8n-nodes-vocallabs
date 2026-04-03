@@ -257,7 +257,7 @@ Select a resource, pick an operation, fill in the parameters, and execute.
 
 ## Changelog
 
-### v2.3.0
+### v2.3.2
 - Overhauled auth token management with Promise mutex — concurrent requests share a single token, preventing "max auth tokens" errors
 - Fixed first-run crash where token was undefined
 - Fixed retry logic to use fresh token headers after refresh
