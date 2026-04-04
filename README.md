@@ -44,7 +44,8 @@ npm install n8n-nodes-vocallabs
 1. Add the **VocalLabs** node to your workflow
 2. Click **Create New Credential**
 3. Enter your Client ID and Client Secret
-4. Save — authentication is handled automatically
+4. Click **Test** to verify your credentials are valid
+5. Save — authentication is handled automatically
 
 ### 3. Build Your Workflow
 
@@ -256,6 +257,9 @@ Select a resource, pick an operation, fill in the parameters, and execute.
 ---
 
 ## Changelog
+
+### v2.3.3
+- Added credential test — users can now verify their Client ID and Client Secret directly from the n8n credential setup screen
 
 ### v2.3.2
 - Overhauled auth token management with Promise mutex — concurrent requests share a single token, preventing "max auth tokens" errors

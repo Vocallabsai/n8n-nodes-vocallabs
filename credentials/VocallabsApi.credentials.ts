@@ -1,4 +1,5 @@
 import {
+    ICredentialTestRequest,
     ICredentialType,
     INodeProperties,
 } from 'n8n-workflow';
@@ -30,4 +31,19 @@ export class VocallabsApi implements ICredentialType {
             description: 'Your VocalLabs Client Secret. Keep this secure and never share it publicly',
         },
     ];
+
+    test: ICredentialTestRequest = {
+        request: {
+            method: 'POST',
+            baseURL: 'https://api.superflow.run',
+            url: '/b2b/createAuthToken/',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: {
+                clientId: '={{ $credentials.clientId }}',
+                clientSecret: '={{ $credentials.clientSecret }}',
+            },
+        },
+    };
 }
