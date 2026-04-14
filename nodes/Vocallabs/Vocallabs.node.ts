@@ -3,13 +3,13 @@ import {
     INodeExecutionData,
     INodeType,
     INodeTypeDescription,
+    NodeConnectionTypes,
     NodeOperationError,
 } from 'n8n-workflow';
 
 // Import resource descriptions
 import { resourceSelector } from './descriptions/common.resource';
 import { dashboardOperations, dashboardFields } from './descriptions/dashboard.description';
-import { authOperations, authFields } from './descriptions/auth.description';
 import { walletOperations, walletFields } from './descriptions/wallet.description';
 import { sipOperations, sipFields } from './descriptions/sip.description';
 import { callOperations, callFields } from './descriptions/call.description';
@@ -23,7 +23,6 @@ import { marketplaceOperations, marketplaceFields } from './descriptions/marketp
 
 // Import action handlers
 import * as dashboardActions from './actions/dashboard.actions';
-import * as authActions from './actions/auth.actions';
 import * as walletActions from './actions/wallet.actions';
 import * as sipActions from './actions/sip.actions';
 import * as callActions from './actions/call.actions';
@@ -47,8 +46,8 @@ export class Vocallabs implements INodeType {
         defaults: {
             name: 'VocalLabs',
         },
-        inputs: ['main'],
-        outputs: ['main'],
+        inputs: [NodeConnectionTypes.Main],
+        outputs: [NodeConnectionTypes.Main],
         credentials: [
             {
                 name: 'vocallabsApi',
@@ -58,7 +57,6 @@ export class Vocallabs implements INodeType {
         properties: [
             resourceSelector,
             ...dashboardOperations,
-            ...authOperations, 
             ...walletOperations,
             ...sipOperations,
             ...callOperations,
@@ -70,7 +68,6 @@ export class Vocallabs implements INodeType {
             ...campaignOperations,
             ...marketplaceOperations,
             ...dashboardFields,
-            ...authFields, 
             ...walletFields,
             ...sipFields,
             ...callFields,
@@ -99,10 +96,7 @@ export class Vocallabs implements INodeType {
                 getDashboardStats: dashboardActions.getDashboardStats,
                 getTokens: dashboardActions.getTokens,
             },
-            auth: {  
-                getAuthInfo: authActions.getAuthInfo,
-      },
-            wallet: {
+wallet: {
                 getBalance: walletActions.getBalance,
                 getTransactionHistory: walletActions.getTransactionHistory,
             },

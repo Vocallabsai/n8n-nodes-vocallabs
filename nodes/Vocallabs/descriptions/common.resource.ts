@@ -15,10 +15,6 @@ export const resourceSelector: INodeProperties = {
             value: 'analytics',
         },
         {
-            name: 'Auth',  // NEW!
-            value: 'auth',
-        },
-        {
             name: 'Call',
             value: 'call',
         },
@@ -27,7 +23,7 @@ export const resourceSelector: INodeProperties = {
             value: 'campaign',
         },
         {
-            name: 'Contacts',
+            name: 'Contact',
             value: 'contacts',
         },
         {

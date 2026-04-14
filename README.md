@@ -120,7 +120,7 @@ Select a resource, pick an operation, fill in the parameters, and execute.
 | Delete Post-Call Data | Remove post-call data |
 | Get VocalLabs Call | Full call details |
 
-### Contacts
+### Contact
 | Operation | Description |
 |-----------|-------------|
 | Create Contact Group | Create a new group |
@@ -193,8 +193,9 @@ Select a resource, pick an operation, fill in the parameters, and execute.
 
 ## Key Features
 
-- **100+ Operations** — Full coverage of the VocalLabs API across 12 resources
-- **Smart Token Management** — Tokens are cached and auto-refreshed on expiry. Concurrent requests share a single token via mutex lock, preventing duplicate token creation
+- **100+ Operations** — Full coverage of the VocalLabs API across 11 resources
+- **Secure Authentication** — Uses n8n's built-in `httpRequestWithAuthentication` with automatic token management via `preAuthentication`. Tokens are never exposed in workflow output data
+- **Concurrent Request Safety** — Mutex-based token refresh ensures only one `createAuthToken` call happens even when 50+ workflows trigger simultaneously, protecting your daily token limit
 - **Multi-Credential Support** — Use different VocalLabs accounts in the same workflow without conflicts
 - **Clean Error Handling** — API errors are parsed into readable messages with proper error codes
 - **Input Validation** — Phone numbers, dates, JSON fields, and pagination are validated before sending to the API
@@ -207,7 +208,7 @@ Select a resource, pick an operation, fill in the parameters, and execute.
 ### Initiate an AI Call
 
 ```
-[Manual Trigger] → [VocalLabs: Initiate Call]
+[Manual Trigger] -> [VocalLabs: Initiate Call]
 ```
 - Resource: **Call**
 - Operation: **Initiate Call**
@@ -217,13 +218,13 @@ Select a resource, pick an operation, fill in the parameters, and execute.
 ### Bulk Import Contacts and Launch Campaign
 
 ```
-[Spreadsheet] → [VocalLabs: Create Contact Group] → [VocalLabs: Add Multiple Contacts] → [VocalLabs: Create Campaign] → [VocalLabs: Add Contacts to Campaign]
+[Spreadsheet] -> [VocalLabs: Create Contact Group] -> [VocalLabs: Add Multiple Contacts] -> [VocalLabs: Create Campaign] -> [VocalLabs: Add Contacts to Campaign]
 ```
 
 ### Monitor Call Analytics
 
 ```
-[Schedule Trigger] → [VocalLabs: Get Daily Calls] → [VocalLabs: Get Call Summary] → [Slack: Send Message]
+[Schedule Trigger] -> [VocalLabs: Get Daily Calls] -> [VocalLabs: Get Call Summary] -> [Slack: Send Message]
 ```
 
 ---
@@ -257,6 +258,16 @@ Select a resource, pick an operation, fill in the parameters, and execute.
 ---
 
 ## Changelog
+
+### v2.4.0
+- Migrated to n8n's `httpRequestWithAuthentication` with `preAuthentication` and `authenticate` on credential class — resolves n8n verification requirements
+- Removed Auth resource that exposed raw bearer tokens in workflow output data
+- Added mutex-based `preAuthentication` to prevent concurrent token creation (protects daily token limit)
+- Added node codex file (`Vocallabs.node.json`) for proper n8n node browser categorization
+- Added credential icon
+- Changed `inputs`/`outputs` to use `NodeConnectionTypes.Main` instead of string literals
+- Renamed resource `Contacts` to `Contact` (singular, per n8n conventions)
+- Removed `.npmignore` (`"files": ["dist"]` in package.json handles publishing scope)
 
 ### v2.3.3
 - Added credential test — users can now verify their Client ID and Client Secret directly from the n8n credential setup screen

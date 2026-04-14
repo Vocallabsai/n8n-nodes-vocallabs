@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   n8n:
     image: n8nio/n8n:latest
@@ -8,13 +6,21 @@ services:
     ports:
       - "5678:5678"
     environment:
-      - N8N_BASIC_AUTH_ACTIVE=false
       - N8N_LOG_LEVEL=debug
-      - N8N_CUSTOM_EXTENSIONS=/data/custom-nodes
+      - CUSTOM_EXTENSION_ENV=n8n-nodes-vocallabs
     volumes:
       - n8n_data:/home/node/.n8n
-      # Mount your Windows path (WSL2 compatible format)
-      - C:\Users\Alex\OneDrive\Desktop\n8n-nodes-vocallabs:/data/custom-nodes/n8n-nodes-vocallabs:ro
+      - /home/ubuntu/rohan/n8n-nodes-vocallabs:/opt/custom-nodes/n8n-nodes-vocallabs
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        mkdir -p /home/node/.n8n/nodes
+        cd /home/node/.n8n/nodes
+        npm init -y 2>/dev/null
+        npm install /opt/custom-nodes/n8n-nodes-vocallabs 2>&1
+        cd /home/node
+        exec n8n start
 
 volumes:
   n8n_data:
