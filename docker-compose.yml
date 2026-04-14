@@ -7,10 +7,9 @@ services:
       - "5678:5678"
     environment:
       - N8N_LOG_LEVEL=debug
-      - CUSTOM_EXTENSION_ENV=n8n-nodes-vocallabs
     volumes:
       - n8n_data:/home/node/.n8n
-      - /home/ubuntu/rohan/n8n-nodes-vocallabs:/opt/custom-nodes/n8n-nodes-vocallabs
+      - .:/opt/custom-nodes/n8n-nodes-vocallabs:ro
     entrypoint: /bin/sh
     command:
       - -c
