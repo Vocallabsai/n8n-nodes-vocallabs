@@ -288,7 +288,6 @@ export const contactsFields: INodeProperties[] = [
             },
         },
     },
-    // NEW: JSON field for bulk contact input
     {
         displayName: 'Contacts (JSON)',
         name: 'contacts_json',
