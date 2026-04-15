@@ -22,9 +22,8 @@
     "url": "https://github.com/Vocallabsai/n8n-nodes-vocallabs/issues"
   },
   "homepage": "https://github.com/Vocallabsai/n8n-nodes-vocallabs#readme",
-  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && gulp build:icons",
+    "build": "tsc && gulp build:assets",
     "dev": "npm run build && n8n start",
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials",

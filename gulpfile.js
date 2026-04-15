@@ -10,5 +10,5 @@ function buildCodex() {
         .pipe(dest('dist/nodes'));
 }
 
-exports['build:icons'] = parallel(buildIcons, buildCodex);
+exports['build:assets'] = parallel(buildIcons, buildCodex);
 exports.default = parallel(buildIcons, buildCodex);

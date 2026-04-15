@@ -5,6 +5,7 @@ function validateCampaignId(ctx: IExecuteFunctions, campaign_id: string, operati
     if (!campaign_id || campaign_id.trim().length === 0) {
         throw new NodeApiError(ctx.getNode(), {
             message: `Campaign ID required for ${operation}`,
+            httpCode: '400',
         });
     }
 }
@@ -13,6 +14,7 @@ function validateAgentId(ctx: IExecuteFunctions, agent_id: string, operation: st
     if (!agent_id || agent_id.trim().length === 0) {
         throw new NodeApiError(ctx.getNode(), {
             message: `Agent ID required for ${operation}`,
+            httpCode: '400',
         });
     }
 }
@@ -31,11 +33,13 @@ export async function createCampaign(ctx: IExecuteFunctions, itemIndex: number):
     if (!name || name.trim().length === 0) {
         throw new NodeApiError(ctx.getNode(), {
             message: 'Campaign name is required',
+            httpCode: '400',
         });
     }
     if (name.length > 100) {
         throw new NodeApiError(ctx.getNode(), {
             message: 'Campaign name too long (max 100 characters)',
+            httpCode: '400',
         });
     }
     validateAgentId(ctx, agent_id, 'Create Campaign');
@@ -56,11 +60,13 @@ export async function updateCampaign(ctx: IExecuteFunctions, itemIndex: number):
     if (!campaign_name || campaign_name.trim().length === 0) {
         throw new NodeApiError(ctx.getNode(), {
             message: 'New campaign name is required',
+            httpCode: '400',
         });
     }
     if (campaign_name.length > 100) {
         throw new NodeApiError(ctx.getNode(), {
             message: 'Campaign name too long (max 100 characters)',
+            httpCode: '400',
         });
     }
 
@@ -92,11 +98,13 @@ export async function getQueueingDetails(ctx: IExecuteFunctions, itemIndex: numb
     if (limit < 1 || limit > 100) {
         throw new NodeApiError(ctx.getNode(), {
             message: 'Limit must be between 1 and 100',
+            httpCode: '400',
         });
     }
     if (offset < 0) {
         throw new NodeApiError(ctx.getNode(), {
             message: 'Offset cannot be negative',
+            httpCode: '400',
         });
     }
 
@@ -139,12 +147,14 @@ export async function addContactsToCampaign(ctx: IExecuteFunctions, itemIndex: n
     if (!user_id || user_id.trim().length === 0) {
         throw new NodeApiError(ctx.getNode(), {
             message: 'User ID is required',
+            httpCode: '400',
         });
     }
     validateCampaignId(ctx, campaign_id, 'Add Contacts to Campaign');
     if (!prospect_group_id || prospect_group_id.trim().length === 0) {
         throw new NodeApiError(ctx.getNode(), {
             message: 'Prospect group ID is required',
+            httpCode: '400',
         });
     }
 
